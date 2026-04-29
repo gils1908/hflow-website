@@ -2,9 +2,9 @@
 
 Static marketing site (`index.html` + React via Babel in the browser).
 
-**Current public URL:** [https://hflow-website-sigma.vercel.app](https://hflow-website-sigma.vercel.app/) (Vercel). Pushing `main` redeploys it.
+**Public URLs (Vercel project `hflow-website`):** [https://www.hflow.pro](https://www.hflow.pro/), [https://web.hflow.pro](https://web.hflow.pro/), [https://hflow-website-sigma.vercel.app](https://hflow-website-sigma.vercel.app/) (apex `hflow.pro` redirects to `www`). Pushing `main` redeploys.
 
-The demo form’s **`<meta name="hflow-api-origin">`** in `index.html` is set to **`https://app.hflow.pro`** (no trailing slash). With **`DEMO_REQUEST_ALLOWED_ORIGINS`** on the app including `https://hflow-website-sigma.vercel.app`, the form can POST cross-origin successfully.
+The demo form’s **`<meta name="hflow-api-origin">`** in `index.html` is set to **`https://app.hflow.pro`** (no trailing slash). On the **hFlow app** Vercel project (`app.hflow.pro`), **`DEMO_REQUEST_ALLOWED_ORIGINS`** must include **every** marketing origin users load the page from (see below), or the browser blocks the request (CORS).
 
 ## Request a demo
 
@@ -14,9 +14,13 @@ The demo form POSTs to the main hFlow Next.js app.
    - If you omit the meta **and** open the site from `localhost` / `127.0.0.1`, the form uses `http://localhost:3000`.  
    - **HTTPS marketing pages cannot call `http://localhost`** (browser security); you must point the meta at a live **https** app URL.
 
-2. **CORS:** On the app (e.g. Vercel env for `app.hflow.pro`), set **`DEMO_REQUEST_ALLOWED_ORIGINS`** to every marketing **origin** (no path, no trailing slash). Right now the site may live at **[https://hflow-website-sigma.vercel.app](https://hflow-website-sigma.vercel.app/)**, so include at least:
-   - `https://hflow-website-sigma.vercel.app`  
-   When you move to a custom domain, **append** those origins too (comma-separated), e.g. `https://hflow-website-sigma.vercel.app,https://www.hflow.pro,https://hflow.pro`.
+2. **CORS:** On the **app** project Vercel env (`app.hflow.pro`), set **`DEMO_REQUEST_ALLOWED_ORIGINS`** to a comma-separated list of marketing **origins** (scheme + host; trailing slashes are OK and are normalized server-side). Include at least:
+   - `https://www.hflow.pro`
+   - `https://web.hflow.pro`
+   - `https://hflow-website-sigma.vercel.app`
+   - Optional: `https://hflow.pro` (apex; usually redirects to `www`)
+   
+   Example: `https://hflow-website-sigma.vercel.app,https://www.hflow.pro,https://web.hflow.pro,https://hflow.pro`
 
 3. Optional: **`DEMO_REQUEST_TO`** — notification inbox (defaults to `hflow@hflow.pro`).
 

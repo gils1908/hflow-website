@@ -57,6 +57,10 @@ const NAVY   = "#1e3270";
 const TEAL   = "#0ea5e9";
 const INDIGO = "#4f46e5";
 const SLATE  = "#475569";
+/** Secondary accent for “open app” entry points — teal family, distinct from primary indigo */
+const APP_LINK        = "#0d9488";
+const APP_LINK_BRIGHT = "#2dd4bf";
+const APP_HREF        = "https://app.hflow.pro";
 
 /** Base URL of the Next.js app for the demo form (no trailing slash). Meta `hflow-api-origin` overrides; localhost pages default to http://localhost:3000. */
 function getDemoRequestApiBase() {
@@ -138,6 +142,13 @@ function Nav({ dark, accent }) {
             {item}
           </a>
         ))}
+        <a href={APP_HREF} style={{
+          color: dark ? APP_LINK_BRIGHT : APP_LINK,
+          border: `1.5px solid ${dark ? "rgba(45,212,191,0.45)" : "rgba(13,148,136,0.45)"}`,
+          background: dark ? "rgba(45,212,191,0.08)" : "rgba(13,148,136,0.06)",
+          padding: "8px 18px", borderRadius: 999,
+          fontSize: 14, fontWeight: 600, textDecoration: "none",
+        }}>Open app</a>
         <a href="#demo" style={{
           background: accent, color: "white",
           padding: "8px 20px", borderRadius: 999,
@@ -227,6 +238,21 @@ function Hero({ dark, accent, heroStyle }) {
             fontSize: 15, fontWeight: 600, textDecoration: "none",
           }}>See how it works ↓</a>
         </div>
+
+        <p style={{
+          marginTop: 28,
+          fontSize: 15,
+          color: subCol,
+          lineHeight: 1.5,
+        }}>
+          Already using hFlow?{" "}
+          <a href={APP_HREF} style={{
+            color: dark ? APP_LINK_BRIGHT : APP_LINK,
+            fontWeight: 600,
+            textDecoration: "none",
+            borderBottom: `1px solid ${dark ? "rgba(45,212,191,0.5)" : "rgba(13,148,136,0.45)"}`,
+          }}>Go to the app →</a>
+        </p>
       </div>
 
       {/* App screenshot */}
@@ -630,7 +656,10 @@ function Footer({ dark, accent }) {
     <footer style={{ background: bg, padding: "48px 40px", color: body }}>
       <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
         <Wordmark muted size={20} />
-        <div style={{ fontSize: 13, display: "flex", gap: 28 }}>
+        <div style={{ fontSize: 13, display: "flex", gap: 28, alignItems: "center", flexWrap: "wrap" }}>
+          <a href={APP_HREF} style={{ color: APP_LINK_BRIGHT, fontWeight: 600, textDecoration: "none" }}>
+            Open app
+          </a>
           {["Privacy","Terms","Contact"].map(t => (
             <a key={t} href="#" style={{ color: body, textDecoration: "none" }}>{t}</a>
           ))}
