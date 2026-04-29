@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Demo form → Next.js API (app). Marketing site may be on Vercel preview until custom domain; CORS is set on the app via DEMO_REQUEST_ALLOWED_ORIGINS. -->
+  <!-- Demo form → Next.js API (`hflow-api-origin`). Operators: allow this page’s origin on the API (browser CORS). -->
   <meta name="hflow-api-origin" content="https://app.hflow.pro" />
   <title>hFlow — Student Literacy Assessment Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -475,13 +475,15 @@ function DemoCTA({ dark, accent }) {
     const pageHttps = window.location.protocol === "https:";
     const apiLocalHttp =
       /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(apiBase);
+    const errGeneric =
+      "We couldn't send your request. Please try again in a few minutes. If it keeps happening, email support@hflow.pro.";
     if (pageHttps && apiBase.startsWith("http:") && !apiLocalHttp) {
-      setError("This page uses HTTPS but the API URL is HTTP. Set meta hflow-api-origin to an https:// app URL.");
+      setError(errGeneric);
       setSubmitting(false);
       return;
     }
     if (pageHttps && apiLocalHttp) {
-      setError("This site is HTTPS but the form points at localhost. Set meta hflow-api-origin to your live app (https://…).");
+      setError(errGeneric);
       setSubmitting(false);
       return;
     }
@@ -500,21 +502,18 @@ function DemoCTA({ dark, accent }) {
         setSent(true);
         return;
       }
-      const msg = data.error || (res.status === 429
-        ? "Too many requests. Please try again later."
-        : "Something went wrong. Please try again.");
-      setError(msg);
-    } catch (err) {
-      console.error("[demo-request]", err);
-      let msg = "Could not reach the server. Check that the app is online.";
-      if (pageHttps && /^http:\/\/(localhost|127\.0\.0\.1)/i.test(apiBase)) {
-        msg = "Update meta hflow-api-origin to your deployed app URL (https://…), not localhost.";
-      } else if (pageHttps && apiBase.startsWith("http:")) {
-        msg = "Use an https:// API URL in meta hflow-api-origin (browsers block mixed content).";
-      } else {
-        msg += " On the server, set DEMO_REQUEST_ALLOWED_ORIGINS to include this site’s exact origin.";
+      if (res.status === 429) {
+        setError("Too many requests. Please try again later.");
+        return;
       }
-      setError(msg);
+      if (res.status === 400 && typeof data.error === "string") {
+        setError(data.error);
+        return;
+      }
+      setError(errGeneric);
+    } catch (err) {
+      console.error("[demo-request] fetch failed (check API URL, HTTPS, and CORS allowlist):", apiBase, err);
+      setError(errGeneric);
     } finally {
       setSubmitting(false);
     }

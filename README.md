@@ -2,6 +2,10 @@
 
 Static marketing site (`index.html` + React via Babel in the browser).
 
+**Current public URL:** [https://hflow-website-sigma.vercel.app](https://hflow-website-sigma.vercel.app/) (Vercel). Pushing `main` redeploys it.
+
+The demo form’s **`<meta name="hflow-api-origin">`** in `index.html` is set to **`https://app.hflow.pro`** (no trailing slash). With **`DEMO_REQUEST_ALLOWED_ORIGINS`** on the app including `https://hflow-website-sigma.vercel.app`, the form can POST cross-origin successfully.
+
 ## Request a demo
 
 The demo form POSTs to the main hFlow Next.js app.
