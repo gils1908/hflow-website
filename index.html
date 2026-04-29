@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Demo form → Next.js API (app). Marketing site may be on Vercel preview until custom domain; CORS is set on the app via DEMO_REQUEST_ALLOWED_ORIGINS. -->
+  <meta name="hflow-api-origin" content="https://app.hflow.pro" />
   <title>hFlow — Student Literacy Assessment Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,8 +58,15 @@ const TEAL   = "#0ea5e9";
 const INDIGO = "#4f46e5";
 const SLATE  = "#475569";
 
-/** Base URL of the hFlow Next.js app (no trailing slash). Set to production app host when deploying the static site. */
-const DEMO_REQUEST_API_BASE = "http://localhost:3000";
+/** Base URL of the Next.js app for the demo form (no trailing slash). Meta `hflow-api-origin` overrides; localhost pages default to http://localhost:3000. */
+function getDemoRequestApiBase() {
+  const meta = document.querySelector('meta[name="hflow-api-origin"]');
+  const fromMeta = meta?.getAttribute("content")?.trim().replace(/\/$/, "") ?? "";
+  if (fromMeta) return fromMeta;
+  const h = window.location.hostname;
+  if (h === "localhost" || h === "127.0.0.1") return "http://localhost:3000";
+  return "https://app.hflow.pro";
+}
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 function Placeholder({ label, width = "100%", height = 320, className = "" }) {
@@ -462,8 +471,22 @@ function DemoCTA({ dark, accent }) {
     if (!name.trim() || !email.trim() || !school.trim()) return;
     setError(null);
     setSubmitting(true);
+    const apiBase = getDemoRequestApiBase();
+    const pageHttps = window.location.protocol === "https:";
+    const apiLocalHttp =
+      /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(apiBase);
+    if (pageHttps && apiBase.startsWith("http:") && !apiLocalHttp) {
+      setError("This page uses HTTPS but the API URL is HTTP. Set meta hflow-api-origin to an https:// app URL.");
+      setSubmitting(false);
+      return;
+    }
+    if (pageHttps && apiLocalHttp) {
+      setError("This site is HTTPS but the form points at localhost. Set meta hflow-api-origin to your live app (https://…).");
+      setSubmitting(false);
+      return;
+    }
     try {
-      const res = await fetch(`${DEMO_REQUEST_API_BASE}/api/demo-request`, {
+      const res = await fetch(`${apiBase}/api/demo-request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -481,8 +504,17 @@ function DemoCTA({ dark, accent }) {
         ? "Too many requests. Please try again later."
         : "Something went wrong. Please try again.");
       setError(msg);
-    } catch {
-      setError("Network error. Check your connection and try again.");
+    } catch (err) {
+      console.error("[demo-request]", err);
+      let msg = "Could not reach the server. Check that the app is online.";
+      if (pageHttps && /^http:\/\/(localhost|127\.0\.0\.1)/i.test(apiBase)) {
+        msg = "Update meta hflow-api-origin to your deployed app URL (https://…), not localhost.";
+      } else if (pageHttps && apiBase.startsWith("http:")) {
+        msg = "Use an https:// API URL in meta hflow-api-origin (browsers block mixed content).";
+      } else {
+        msg += " On the server, set DEMO_REQUEST_ALLOWED_ORIGINS to include this site’s exact origin.";
+      }
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
