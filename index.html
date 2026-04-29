@@ -16,6 +16,19 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
     #root { min-height: 100vh; }
+    /* Demo form: placeholders need real CSS (React inline style can't target ::placeholder) */
+    #demo .demo-input {
+      color: #ffffff;
+      caret-color: #fff;
+    }
+    #demo .demo-input::placeholder {
+      color: rgba(255, 255, 255, 0.88);
+      opacity: 1;
+    }
+    #demo .demo-input:focus {
+      border-color: rgba(255, 255, 255, 0.55) !important;
+      background: rgba(255, 255, 255, 0.22) !important;
+    }
   </style>
 </head>
 <body>
@@ -42,6 +55,9 @@ const NAVY   = "#1e3270";
 const TEAL   = "#0ea5e9";
 const INDIGO = "#4f46e5";
 const SLATE  = "#475569";
+
+/** Base URL of the hFlow Next.js app (no trailing slash). Set to production app host when deploying the static site. */
+const DEMO_REQUEST_API_BASE = "http://localhost:3000";
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 function Placeholder({ label, width = "100%", height = 320, className = "" }) {
@@ -428,6 +444,8 @@ function DemoCTA({ dark, accent }) {
   const [email, setEmail] = React.useState("");
   const [school, setSchool] = React.useState("");
   const [sent, setSent]   = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   const bg = dark
     ? "linear-gradient(135deg, #0c1440 0%, #1e3270 100%)"
@@ -435,11 +453,40 @@ function DemoCTA({ dark, accent }) {
 
   const inp = {
     width: "100%", padding: "12px 16px", borderRadius: 10,
-    border: "1px solid rgba(255,255,255,0.25)",
-    background: "rgba(255,255,255,0.12)", color: "white",
-    fontSize: 14, outline: "none",
-    "::placeholder": { color: "rgba(255,255,255,0.6)" },
+    border: "1px solid rgba(255,255,255,0.38)",
+    background: "rgba(255,255,255,0.2)",
+    fontSize: 15, fontWeight: 500, outline: "none",
   };
+
+  async function submitDemo() {
+    if (!name.trim() || !email.trim() || !school.trim()) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${DEMO_REQUEST_API_BASE}/api/demo-request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          school: school.trim(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 201) {
+        setSent(true);
+        return;
+      }
+      const msg = data.error || (res.status === 429
+        ? "Too many requests. Please try again later."
+        : "Something went wrong. Please try again.");
+      setError(msg);
+    } catch {
+      setError("Network error. Check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <section id="demo" style={{ background: bg, padding: "100px 40px", position: "relative", overflow: "hidden" }}>
@@ -465,24 +512,33 @@ function DemoCTA({ dark, accent }) {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {error && (
+              <div role="alert" style={{
+                background: "rgba(220, 38, 38, 0.25)", border: "1px solid rgba(252, 165, 165, 0.6)",
+                borderRadius: 10, padding: "12px 16px", color: "#fff", fontSize: 14, textAlign: "left",
+              }}>{error}</div>
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              <input value={name} onChange={e => setName(e.target.value)}
-                placeholder="Your name" style={inp} />
-              <input value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="Work email" type="email" style={inp} />
+              <input className="demo-input" value={name} onChange={e => setName(e.target.value)}
+                placeholder="Your name" style={inp} disabled={submitting} />
+              <input className="demo-input" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="Work email" type="email" style={inp} disabled={submitting} />
             </div>
-            <input value={school} onChange={e => setSchool(e.target.value)}
-              placeholder="School or organization name" style={{ ...inp, width: "100%" }} />
+            <input className="demo-input" value={school} onChange={e => setSchool(e.target.value)}
+              placeholder="School or organization name" style={{ ...inp, width: "100%" }} disabled={submitting} />
             <button
-              onClick={() => { if (name && email && school) setSent(true); }}
+              type="button"
+              onClick={submitDemo}
+              disabled={submitting || !name.trim() || !email.trim() || !school.trim()}
               style={{
                 background: "white", color: accent,
                 padding: "14px 32px", borderRadius: 999,
-                fontSize: 15, fontWeight: 700, cursor: "pointer",
-                border: "none", marginTop: 4,
+                fontSize: 15, fontWeight: 700,
+                cursor: submitting || !name.trim() || !email.trim() || !school.trim() ? "not-allowed" : "pointer",
+                border: "none", marginTop: 4, opacity: submitting || !name.trim() || !email.trim() || !school.trim() ? 0.65 : 1,
                 boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
                 transition: "transform 0.15s",
-              }}>Request a Demo</button>
+              }}>{submitting ? "Sending…" : "Request a Demo"}</button>
           </div>
         )}
       </div>
