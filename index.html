@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Demo form → Next.js API (`hflow-api-origin`). Operators: allow this page’s origin on the API (browser CORS). -->
   <meta name="hflow-api-origin" content="https://app.hflow.pro" />
-  <title>hFlow — Student Literacy Assessment Platform</title>
+  <title>hFlow: Student Literacy Assessment Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -52,12 +52,12 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "heroStyle": "gradient"
 }/*EDITMODE-END*/;
 
-// ── Palette ──────────────────────────────────────────────────────────────────
+// Palette
 const NAVY   = "#1e3270";
 const TEAL   = "#0ea5e9";
 const INDIGO = "#4f46e5";
 const SLATE  = "#475569";
-/** Secondary accent for “open app” entry points — teal family, distinct from primary indigo */
+/** Secondary accent for “open app” entry points (teal family, distinct from primary indigo) */
 const APP_LINK        = "#0d9488";
 const APP_LINK_BRIGHT = "#2dd4bf";
 const APP_HREF        = "https://app.hflow.pro";
@@ -72,7 +72,16 @@ function getDemoRequestApiBase() {
   return "https://app.hflow.pro";
 }
 
-// ── Small helpers ─────────────────────────────────────────────────────────────
+/** Resolve `Assets/…` against the current page (works for file:// and any deploy path). */
+function assetUrl(relativePath) {
+  try {
+    return new URL(relativePath, window.location.href).href;
+  } catch {
+    return relativePath;
+  }
+}
+
+// Small helpers
 function Placeholder({ label, width = "100%", height = 320, className = "" }) {
   return (
     <div
@@ -95,7 +104,7 @@ function Placeholder({ label, width = "100%", height = 320, className = "" }) {
   );
 }
 
-// ── Brand wordmark (text, matches in-app header style) ────────────────────────
+// Brand wordmark (text, matches in-app header style)
 function Wordmark({ dark, size = 22, muted = false }) {
   const color = muted
     ? "rgba(255,255,255,0.82)"
@@ -119,7 +128,7 @@ function Wordmark({ dark, size = 22, muted = false }) {
   );
 }
 
-// ── Nav ───────────────────────────────────────────────────────────────────────
+// Nav
 function Nav({ dark, accent }) {
   const bg    = dark ? "rgba(18,28,64,0.95)" : "rgba(255,255,255,0.92)";
   const color = dark ? "#e0e8ff" : NAVY;
@@ -160,37 +169,75 @@ function Nav({ dark, accent }) {
   );
 }
 
-// ── Hero ──────────────────────────────────────────────────────────────────────
+// Hero
+const HERO_CLASSROOM_BG = "Assets/hero-classroom.png";
+
 function Hero({ dark, accent, heroStyle }) {
-  const bgLight = heroStyle === "gradient"
-    ? "radial-gradient(ellipse 120% 90% at 60% -10%, #e0e8ff 0%, #f8faff 55%, #ffffff 100%)"
-    : "#f8faff";
+  /* Photo only behind headline block; screenshot sits on plain section bg below */
+  const usePhotoBg = !dark;
   const bgDark  = "linear-gradient(135deg, #0c1440 0%, #1e3270 50%, #112060 100%)";
-  const bg      = dark ? bgDark : bgLight;
+  const sectionBg = dark ? bgDark : "#f8faff";
   const textCol = dark ? "#ffffff" : NAVY;
-  const subCol  = dark ? "rgba(200,215,255,0.75)" : SLATE;
+  /* Slightly darker than global SLATE so hero body copy reads on the classroom photo */
+  const subCol  = dark ? "rgba(200,215,255,0.75)" : "#334155";
+  const photoStrength = heroStyle === "flat" ? 0.68 : 0.78;
+  const scrimCenter = heroStyle === "flat" ? 0.82 : 0.72;
 
   return (
-    <section style={{ background: bg, padding: "100px 40px 80px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-      {/* Decorative orb */}
-      {dark && (
-        <div style={{
-          position: "absolute", top: -100, right: "15%",
-          width: 500, height: 500,
-          background: `radial-gradient(circle, ${accent}22 0%, transparent 70%)`,
-          borderRadius: "50%", pointerEvents: "none",
-        }} />
-      )}
-      {!dark && (
-        <div style={{
-          position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)",
-          width: 700, height: 400,
-          background: `radial-gradient(ellipse, ${accent}14 0%, transparent 70%)`,
-          borderRadius: "50%", pointerEvents: "none",
-        }} />
-      )}
+    <section style={{ background: sectionBg, padding: 0, position: "relative", overflow: "hidden" }}>
+      {/* Upper hero only; image ends above product screenshot */}
+      <div style={{
+        position: "relative",
+        overflow: "hidden",
+        padding: "100px 40px 64px",
+        textAlign: "center",
+      }}>
+        {usePhotoBg && (
+          <>
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `url(${assetUrl(HERO_CLASSROOM_BG)})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center 35%",
+                opacity: photoStrength,
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: [
+                  `radial-gradient(ellipse 95% 90% at 50% 24%, rgba(255,255,255,${scrimCenter}) 0%, rgba(248,250,255,0.48) 45%, rgba(241,245,255,0.15) 100%)`,
+                  "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(248,250,255,0.05) 50%, rgba(255,255,255,0.18) 100%)",
+                ].join(", "),
+                pointerEvents: "none",
+              }}
+            />
+          </>
+        )}
+        {dark && (
+          <div style={{
+            position: "absolute", top: -100, right: "15%",
+            width: 500, height: 500,
+            background: `radial-gradient(circle, ${accent}22 0%, transparent 70%)`,
+            borderRadius: "50%", pointerEvents: "none",
+          }} />
+        )}
+        {!dark && (
+          <div style={{
+            position: "absolute", top: -80, left: "50%", transform: "translateX(-50%)",
+            width: 700, height: 400,
+            background: `radial-gradient(ellipse, ${accent}14 0%, transparent 72%)`,
+            borderRadius: "50%", pointerEvents: "none",
+          }} />
+        )}
 
-      <div style={{ position: "relative", maxWidth: 760, margin: "0 auto" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 760, margin: "0 auto" }}>
         <div style={{
           display: "inline-block",
           background: dark ? "rgba(255,255,255,0.08)" : `${accent}12`,
@@ -219,7 +266,7 @@ function Hero({ dark, accent, heroStyle }) {
           maxWidth: 560, margin: "0 auto 48px",
           textWrap: "pretty",
         }}>
-          hFlow is the modern assessment platform for schools that want clarity, not complexity. Track student progress, configure your own assessments, and communicate results — all in one place.
+          hFlow is the modern reading assessment platform for schools that want clarity, not complexity. Track student progress, configure your own assessments, and communicate results, all in one place.
         </p>
 
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
@@ -253,10 +300,11 @@ function Hero({ dark, accent, heroStyle }) {
             borderBottom: `1px solid ${dark ? "rgba(45,212,191,0.5)" : "rgba(13,148,136,0.45)"}`,
           }}>Go to the app →</a>
         </p>
+        </div>
       </div>
 
-      {/* App screenshot */}
-      <div style={{ maxWidth: 900, margin: "64px auto 0" }}>
+      {/* App screenshot; below photo area, solid section background */}
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", padding: "0 40px 80px" }}>
         <div style={{
           borderRadius: 20,
           boxShadow: dark ? "0 32px 80px rgba(0,0,0,0.5)" : "0 24px 64px rgba(30,50,112,0.12)",
@@ -270,29 +318,102 @@ function Hero({ dark, accent, heroStyle }) {
   );
 }
 
-// ── Features ──────────────────────────────────────────────────────────────────
+// Features
 const FEATURES = [
   {
-    icon: "✦",
+    icon: "tablet",
     title: "Modern & intuitive",
-    body: "A beautiful, responsive interface designed for educators — not IT departments. No training manual required.",
+    body: "A clean, responsive interface designed for educators.",
   },
   {
-    icon: "◈",
+    icon: "folder",
     title: "Flexible assessments",
-    body: "Not locked to a single test format. Define your own assessments to match your curriculum, language, and grade-level goals.",
+    body: "Not locked to a single assessment format. Define your own assessments to match your curriculum, language, and grade-level goals.",
   },
   {
-    icon: "◉",
+    icon: "charts",
     title: "Visual reporting",
     body: "Tier distributions, trend charts, and progress snapshots surface instantly. Export or email charts with one click.",
   },
   {
-    icon: "◎",
+    icon: "people",
     title: "Parent communications",
-    body: "Generate personalized progress reports for families. Customizable templates with live student data — ready to send.",
+    body: "Generate personalized progress reports for families. Customizable templates with up to date student data and charts, ready to send.",
+  },
+  {
+    icon: "levels",
+    title: "Configurable levels & standards",
+    body: "Define tier standards by level. Once saved, the system applies them across students and classes automatically.",
   },
 ];
+
+/** Minimal line-style icons (reference: soft purple square + navy strokes + accent fills). */
+function FeatureIcon({ variant, accent, dark }) {
+  const s = dark ? "rgba(255,255,255,0.92)" : NAVY;
+  const w = 1.75;
+  const fi = dark ? 0.42 : 0.34;
+  return (
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden style={{ display: "block" }}>
+      {variant === "tablet" && (
+        <>
+          <rect x="11" y="7" width="26" height="34" rx="3" stroke={s} strokeWidth={w} />
+          <rect x="14" y="11" width="20" height="22" rx="1.5" stroke={s} strokeWidth={1.35} opacity="0.3" />
+          <circle cx="24" cy="39" r="1.75" stroke={s} strokeWidth={w} />
+          {/* Index finger / touch */}
+          <ellipse cx="22.5" cy="15" rx="2.25" ry="3" stroke={s} strokeWidth={w} />
+          <path d="M22.5 18v8" stroke={s} strokeWidth={w} strokeLinecap="round" />
+        </>
+      )}
+      {variant === "folder" && (
+        <>
+          <path
+            d="M10 14h10l2 3h16a2 2 0 012 2v17a2 2 0 01-2 2H10a2 2 0 01-2-2V16a2 2 0 012-2z"
+            stroke={s}
+            strokeWidth={w}
+            strokeLinejoin="round"
+          />
+          <path d="M10 17h30" stroke={s} strokeWidth={w} strokeLinecap="round" opacity="0.4" />
+          <circle cx="30" cy="22" r="5.5" stroke={s} strokeWidth={w} />
+          <circle cx="30" cy="22" r="3.25" fill={accent} fillOpacity={dark ? 0.35 : 0.28} />
+          <path d="M34 26l4 4" stroke={s} strokeWidth={w} strokeLinecap="round" />
+        </>
+      )}
+      {variant === "charts" && (
+        <>
+          <path d="M9 35h30" stroke={s} strokeWidth={w} strokeLinecap="round" opacity="0.35" />
+          <rect x="11" y="28" width="5" height="7" rx="1" fill={accent} fillOpacity={fi + 0.08} stroke={s} strokeWidth={1.35} />
+          <rect x="18" y="22" width="5" height="13" rx="1" fill={accent} fillOpacity={fi + 0.15} stroke={s} strokeWidth={1.35} />
+          <rect x="25" y="26" width="5" height="9" rx="1" fill={accent} fillOpacity={fi} stroke={s} strokeWidth={1.35} />
+          <path d="M16 18l4-3 4 2 5-5" stroke={s} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M27 12l2 2-2 2" stroke={s} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="37" cy="24" r="7" stroke={s} strokeWidth={w} />
+          <path d="M37 24L37 17A7 7 0 0144 24H37z" fill={accent} fillOpacity={fi + 0.06} stroke={s} strokeWidth={1.35} />
+        </>
+      )}
+      {variant === "people" && (
+        <>
+          <circle cx="14" cy="17.5" r="4.25" stroke={s} strokeWidth={w} />
+          <path d="M8.5 33.5c0-3.8 2.4-6.8 5.5-6.8s5.5 3 5.5 6.8" stroke={s} strokeWidth={w} strokeLinecap="round" />
+          <circle cx="14" cy="17.5" r="2.75" fill={accent} fillOpacity={fi * 0.75} />
+          <circle cx="34" cy="17.5" r="4.25" stroke={s} strokeWidth={w} />
+          <path d="M28.5 33.5c0-3.8 2.4-6.8 5.5-6.8s5.5 3 5.5 6.8" stroke={s} strokeWidth={w} strokeLinecap="round" />
+          <circle cx="34" cy="17.5" r="2.75" fill={accent} fillOpacity={fi * 0.75} />
+          <path d="M21 22.5h7" stroke={s} strokeWidth={w} strokeLinecap="round" />
+          <path d="M27 20.5l2.5 2-2.5 2" stroke={s} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />
+        </>
+      )}
+      {variant === "levels" && (
+        <>
+          {/* Stepped level bands; reads as configurable strata */}
+          <rect x="10" y="11" width="12" height="5" rx="1.25" stroke={s} strokeWidth={1.35} />
+          <rect x="10" y="18" width="18" height="5" rx="1.25" stroke={s} strokeWidth={1.35} />
+          <rect x="10" y="25" width="24" height="5" rx="1.25" fill={accent} fillOpacity={fi + 0.1} stroke={s} strokeWidth={1.35} />
+          <rect x="10" y="32" width="30" height="5" rx="1.25" stroke={s} strokeWidth={1.35} />
+        </>
+      )}
+    </svg>
+  );
+}
 
 function Features({ dark, accent }) {
   const bg     = dark ? "#0e1a4a" : "#f8faff";
@@ -306,14 +427,19 @@ function Features({ dark, accent }) {
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 64 }}>
           <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 800, color: h, letterSpacing: "-0.02em", marginBottom: 16 }}>
-            Built around how schools actually work
+            Designed to fit your school’s needs
           </h2>
           <p style={{ fontSize: 17, color: body, maxWidth: 520, margin: "0 auto", textWrap: "pretty" }}>
-            Four pillars that make hFlow the assessment platform schools keep coming back to.
+            Five pillars that make hFlow the assessment platform schools keep coming back to.
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24 }}>
+        <div style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: 24,
+        }}>
           {FEATURES.map((f, i) => (
             <div key={i} style={{
               background: cardBg,
@@ -321,14 +447,21 @@ function Features({ dark, accent }) {
               borderRadius: 20,
               padding: "36px 28px",
               transition: "transform 0.2s",
+              flex: "0 1 280px",
+              width: "100%",
+              maxWidth: "340px",
+              boxSizing: "border-box",
             }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 14,
                 background: `${accent}18`,
                 color: accent,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 22, marginBottom: 20,
-              }}>{f.icon}</div>
+                flexShrink: 0,
+                marginBottom: 20,
+              }}>
+                <FeatureIcon variant={f.icon} accent={accent} dark={dark} />
+              </div>
               <h3 style={{ fontSize: 18, fontWeight: 700, color: h, marginBottom: 10 }}>{f.title}</h3>
               <p style={{ fontSize: 14, color: body, lineHeight: 1.65, textWrap: "pretty" }}>{f.body}</p>
             </div>
@@ -339,12 +472,12 @@ function Features({ dark, accent }) {
   );
 }
 
-// ── How it works ──────────────────────────────────────────────────────────────
+// How it works
 const STEPS = [
-  { n: "01", title: "Set up your school", body: "Add students, configure grades, languages, and class groupings. Import existing rosters via CSV in minutes." },
-  { n: "02", title: "Run assessments", body: "Enter BOY, MOY, and EOY results for each student. Support for individual and scheduled multi-passage assessments." },
-  { n: "03", title: "See insights instantly", body: "Tier distributions and trend charts surface automatically. Spot students who need support before it's too late." },
-  { n: "04", title: "Communicate results", body: "Send personalized progress reports to parents with chart attachments — directly from hFlow." },
+  { n: "01", title: "Set up your school", body: "Add your students, grades, and classes, or bring in a list from a spreadsheet if you already have one." },
+  { n: "02", title: "Record assessment results", body: "Log milestone assessments and add checkpoints as needed." },
+  { n: "03", title: "See the big picture", body: "hFlow turns results into simple charts and summaries so you can see patterns and who may need extra support." },
+  { n: "04", title: "Keep families in the loop", body: "Create clear progress updates for parents, automatically including visual charts, and track parent communications." },
 ];
 
 function HowItWorks({ dark, accent }) {
@@ -389,7 +522,7 @@ function HowItWorks({ dark, accent }) {
   );
 }
 
-// ── Reporting callout ─────────────────────────────────────────────────────────
+// Reporting callout
 function ReportingCallout({ dark, accent }) {
   const bg = dark
     ? `linear-gradient(135deg, #0c1440 0%, #1a2f70 100%)`
@@ -420,7 +553,7 @@ function ReportingCallout({ dark, accent }) {
             Charts that tell the story at a glance
           </h2>
           <p style={{ fontSize: 15, color: body, lineHeight: 1.7, marginBottom: 28, maxWidth: 400, textWrap: "pretty" }}>
-            Grade-wide tier distributions, per-student trend lines, and benchmark overlays — all exportable as images or shareable by email.
+            Grade-wide tier distributions, per-student trend lines, and benchmark overlays, all exportable as images or shareable by email.
           </p>
           <a href="#demo" style={{
             background: accent, color: "white",
@@ -436,13 +569,13 @@ function ReportingCallout({ dark, accent }) {
   );
 }
 
-// ── FAQ ───────────────────────────────────────────────────────────────────────
+// FAQ
 const FAQS = [
-  { q: "What languages and curricula does hFlow support?", a: "hFlow is language-agnostic. You configure the languages, grade levels, and assessment criteria that match your school's curriculum — no vendor lock-in." },
-  { q: "Do I need to use a specific test or assessment format?", a: "No. hFlow lets you define your own assessment structure — number of passages, scoring method, and periods (BOY/MOY/EOY). Flexible enough for any reading program." },
+  { q: "What languages and curricula does hFlow support?", a: "hFlow is language-agnostic. You configure the languages, grade levels, and assessment criteria that match your school's curriculum, with no vendor lock-in." },
+  { q: "Do I need to use a specific test or assessment format?", a: "No. hFlow lets you define your own assessment structure: number of passages, scoring method, and periods (BOY/MOY/EOY). Flexible enough for any reading program." },
   { q: "How is student data protected?", a: "All data is encrypted in transit, and students' PII is also encrypted at rest. Access is scoped per school with role-based permissions (admin and teacher). Student records are soft-deleted and never permanently exposed." },
-  { q: "Can multiple teachers use the system simultaneously?", a: "Yes. Admins can invite staff, assign them to specific classrooms and languages, and set role-based access — so teachers only see the students they're responsible for." },
-  { q: "How does hFlow handle FERPA compliance?", a: "hFlow is built with FERPA principles at its core — student data is scoped per school, access is role-controlled, and no student information is shared with outside parties. We're happy to discuss your school's specific compliance requirements during a demo." },
+  { q: "Can multiple teachers use the system simultaneously?", a: "Yes. Admins can invite staff, assign them to specific classrooms and languages, and set role-based access, so teachers only see the students they're responsible for." },
+  { q: "How does hFlow handle FERPA compliance?", a: "hFlow is built with FERPA principles at its core. Student data is scoped per school, access is role-controlled, and no student information is shared with outside parties. We're happy to discuss your school's specific compliance requirements during a demo." },
   { q: "How do I get started?", a: "Request a demo below and we'll set up a guided walkthrough with your team. Most schools are fully configured and entering assessments within a single afternoon." },
 ];
 
@@ -497,7 +630,7 @@ function FAQ({ dark, accent }) {
   );
 }
 
-// ── Demo CTA ──────────────────────────────────────────────────────────────────
+// Demo CTA
 function DemoCTA({ dark, accent }) {
   const [name, setName]   = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -627,7 +760,7 @@ function DemoCTA({ dark, accent }) {
   );
 }
 
-// ── About ─────────────────────────────────────────────────────────────────────
+// About
 function About({ dark, accent }) {
   const bg   = dark ? "#0c1440" : "#f0f4ff";
   const h    = dark ? "white" : NAVY;
@@ -640,14 +773,14 @@ function About({ dark, accent }) {
           Built by educators, for educators
         </h2>
         <p style={{ fontSize: 15, color: body, lineHeight: 1.8, textWrap: "pretty" }}>
-          hFlow was born from the frustration of juggling spreadsheets, disconnected tools, and assessment software that doesn't match the way schools actually run. We built the platform we wished existed — one that respects teachers' time, surfaces meaningful data, and keeps parents in the loop.
+          hFlow was born from the frustration of juggling spreadsheets, disconnected tools, and assessment software that doesn't match the way schools actually run. We built the platform we wished existed: one that respects teachers' time, surfaces meaningful data, and keeps parents in the loop.
         </p>
       </div>
     </section>
   );
 }
 
-// ── Footer ────────────────────────────────────────────────────────────────────
+// Footer
 function Footer({ dark, accent }) {
   const bg   = dark ? "#080f30" : NAVY;
   const body = "rgba(180,195,230,0.7)";
@@ -670,7 +803,7 @@ function Footer({ dark, accent }) {
   );
 }
 
-// ── App ───────────────────────────────────────────────────────────────────────
+// App
 function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const dark   = t.direction === "dark";

@@ -22,7 +22,7 @@ The demo form POSTs to the main hFlow Next.js app.
    
    Example: `https://hflow-website-sigma.vercel.app,https://www.hflow.pro,https://web.hflow.pro,https://hflow.pro`
 
-3. Optional: **`DEMO_REQUEST_TO`** — notification inbox (defaults to `hflow@hflow.pro`).
+3. Optional: **`DEMO_REQUEST_TO`**, notification inbox (defaults to `hflow@hflow.pro`).
 
 The app needs **`RESEND_API_KEY`**, **`RESEND_FROM`**, and **`SUPABASE_SERVICE_ROLE_KEY`**; apply migration `20260429180000_demo_request_submissions.sql` so `demo_request_submissions` exists.
 
