@@ -635,6 +635,7 @@ function DemoCTA({ dark, accent }) {
   const [name, setName]   = React.useState("");
   const [email, setEmail] = React.useState("");
   const [school, setSchool] = React.useState("");
+  const [phone, setPhone] = React.useState("");
   const [sent, setSent]   = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState(null);
@@ -678,6 +679,7 @@ function DemoCTA({ dark, accent }) {
           name: name.trim(),
           email: email.trim(),
           school: school.trim(),
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -740,6 +742,14 @@ function DemoCTA({ dark, accent }) {
             </div>
             <input className="demo-input" value={school} onChange={e => setSchool(e.target.value)}
               placeholder="School or organization name" style={{ ...inp, width: "100%" }} disabled={submitting} />
+            <div style={{ width: "100%", textAlign: "left" }}>
+              <input className="demo-input" value={phone} onChange={e => setPhone(e.target.value)}
+                placeholder="Phone (optional)" type="tel" inputMode="tel" autoComplete="tel"
+                style={{ ...inp, width: "100%" }} disabled={submitting} />
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 6, lineHeight: 1.4 }}>
+                Optional. Not required to submit this form.
+              </p>
+            </div>
             <button
               type="button"
               onClick={submitDemo}

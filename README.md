@@ -24,7 +24,7 @@ The demo form POSTs to the main hFlow Next.js app.
 
 3. Optional: **`DEMO_REQUEST_TO`**, notification inbox (defaults to `hflow@hflow.pro`).
 
-The app needs **`RESEND_API_KEY`**, **`RESEND_FROM`**, and **`SUPABASE_SERVICE_ROLE_KEY`**; apply migration `20260429180000_demo_request_submissions.sql` so `demo_request_submissions` exists.
+The app needs **`RESEND_API_KEY`**, **`RESEND_FROM`**, and **`SUPABASE_SERVICE_ROLE_KEY`**; apply migrations for `demo_request_submissions` (base `20260429180000_demo_request_submissions.sql`, optional `phone` `20260429213000_add_demo_request_phone.sql`). The form posts `name`, `email`, `school`, and optional `phone`.
 
 ### If the form shows a connection / CORS error
 
