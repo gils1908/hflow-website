@@ -303,8 +303,8 @@ function Hero({ dark, accent, heroStyle }) {
         </div>
       </div>
 
-      {/* App screenshot; below photo area, solid section background */}
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", padding: "0 40px 80px" }}>
+      {/* App screenshot; below photo area, solid section background (width aligns with Features grid) */}
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "22px 40px 80px" }}>
         <div style={{
           borderRadius: 20,
           boxShadow: dark ? "0 32px 80px rgba(0,0,0,0.5)" : "0 24px 64px rgba(30,50,112,0.12)",
@@ -416,7 +416,8 @@ function FeatureIcon({ variant, accent, dark }) {
 }
 
 function Features({ dark, accent }) {
-  const bg     = dark ? "#0e1a4a" : "#f8faff";
+  /* Light: slightly deeper than hero (#f8faff) so pillars read as their own section */
+  const bg     = dark ? "#0e1a4a" : "#eceff6";
   const cardBg = dark ? "rgba(255,255,255,0.05)" : "white";
   const cardBd = dark ? "rgba(255,255,255,0.08)" : "#eaeff8";
   const h      = dark ? "white" : NAVY;
@@ -476,7 +477,7 @@ function Features({ dark, accent }) {
 const STEPS = [
   { n: "01", title: "Set up your school", body: "Add your students, grades, and classes, or bring in a list from a spreadsheet if you already have one." },
   { n: "02", title: "Record assessment results", body: "Log milestone assessments and add checkpoints as needed." },
-  { n: "03", title: "See the big picture", body: "hFlow turns results into simple charts and summaries so you can see patterns and who may need extra support." },
+  { n: "03", title: "See the big picture", body: "hFlow turns results into simple charts and summaries so you can see patterns and track students who need extra support." },
   { n: "04", title: "Keep families in the loop", body: "Create clear progress updates for parents, automatically including visual charts, and track parent communications." },
 ];
 
@@ -515,7 +516,7 @@ function HowItWorks({ dark, accent }) {
               </div>
             ))}
           </div>
-          <img src="Assets/screenshot-trend.jpg" alt="Student trend chart" style={{ width: "100%", borderRadius: 16, border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`, boxShadow: dark ? "0 16px 48px rgba(0,0,0,0.4)" : "0 12px 40px rgba(30,50,112,0.10)", display: "block" }} />
+          <img src="Assets/screenshot-trend.png?v=3" alt="Student performance trend: accuracy and fluency over BOY, MOY, EOY" style={{ width: "100%", borderRadius: 16, border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`, boxShadow: dark ? "0 16px 48px rgba(0,0,0,0.4)" : "0 12px 40px rgba(30,50,112,0.10)", display: "block" }} />
         </div>
       </div>
     </section>
@@ -572,9 +573,9 @@ function ReportingCallout({ dark, accent }) {
 // FAQ
 const FAQS = [
   { q: "What languages and curricula does hFlow support?", a: "hFlow is language-agnostic. You configure the languages, grade levels, and assessment criteria that match your school's curriculum, with no vendor lock-in." },
-  { q: "Do I need to use a specific test or assessment format?", a: "No. hFlow lets you define your own assessment structure: number of passages, scoring method, and periods (BOY/MOY/EOY). Flexible enough for any reading program." },
-  { q: "How is student data protected?", a: "All data is encrypted in transit, and students' PII is also encrypted at rest. Access is scoped per school with role-based permissions (admin and teacher). Student records are soft-deleted and never permanently exposed." },
-  { q: "Can multiple teachers use the system simultaneously?", a: "Yes. Admins can invite staff, assign them to specific classrooms and languages, and set role-based access, so teachers only see the students they're responsible for." },
+  { q: "Does the platform include assessment texts for each grade?", a: "No. hFlow does not provide assessment texts; it is designed to record, analyze, and visualize the results of assessments you already use. This allows schools to maintain their existing curriculum while gaining powerful insights into student progress." },
+  { q: "How is student data protected?", a: "All data is encrypted in transit, and students' PII is also encrypted at rest. Access is scoped per school with role-based permissions (admin and teacher). Student records can be removed from active use (soft-deleted) rather than left visible as live records." },
+  { q: "Can multiple teachers use the system simultaneously?", a: "Yes. Admins can invite staff, assign them to specific classrooms and languages, and set role-based access." },
   { q: "How does hFlow handle FERPA compliance?", a: "hFlow is built with FERPA principles at its core. Student data is scoped per school, access is role-controlled, and no student information is shared with outside parties. We're happy to discuss your school's specific compliance requirements during a demo." },
   { q: "How do I get started?", a: "Request a demo below and we'll set up a guided walkthrough with your team. Most schools are fully configured and entering assessments within a single afternoon." },
 ];
@@ -594,7 +595,7 @@ function FAQ({ dark, accent }) {
           <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, color: h, letterSpacing: "-0.02em", marginBottom: 14 }}>
             Common questions
           </h2>
-          <p style={{ fontSize: 16, color: body }}>Everything you need to know before requesting a demo.</p>
+          <p style={{ fontSize: 16, color: body }}>What schools usually want to know.</p>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -716,7 +717,7 @@ function DemoCTA({ dark, accent }) {
           See hFlow in action
         </h2>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.75)", marginBottom: 40, lineHeight: 1.65 }}>
-          Request a personalized demo and we'll walk you through the platform with your school's use case in mind.
+          Request a personalized demo and we'll walk you through the platform and answer your questions.
         </p>
 
         {sent ? (
@@ -742,14 +743,9 @@ function DemoCTA({ dark, accent }) {
             </div>
             <input className="demo-input" value={school} onChange={e => setSchool(e.target.value)}
               placeholder="School or organization name" style={{ ...inp, width: "100%" }} disabled={submitting} />
-            <div style={{ width: "100%", textAlign: "left" }}>
-              <input className="demo-input" value={phone} onChange={e => setPhone(e.target.value)}
-                placeholder="Phone (optional)" type="tel" inputMode="tel" autoComplete="tel"
-                style={{ ...inp, width: "100%" }} disabled={submitting} />
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", marginTop: 6, lineHeight: 1.4 }}>
-                Optional. Not required to submit this form.
-              </p>
-            </div>
+            <input className="demo-input" value={phone} onChange={e => setPhone(e.target.value)}
+              placeholder="Phone (optional)" type="tel" inputMode="tel" autoComplete="tel"
+              style={{ ...inp, width: "100%" }} disabled={submitting} />
             <button
               type="button"
               onClick={submitDemo}
@@ -783,7 +779,7 @@ function About({ dark, accent }) {
           Built by educators, for educators
         </h2>
         <p style={{ fontSize: 15, color: body, lineHeight: 1.8, textWrap: "pretty" }}>
-          hFlow was born from the frustration of juggling spreadsheets, disconnected tools, and assessment software that doesn't match the way schools actually run. We built the platform we wished existed: one that respects teachers' time, surfaces meaningful data, and keeps parents in the loop.
+          hFlow was born out of the frustration of juggling spreadsheets, disconnected tools, and assessment systems that don’t reflect how schools actually operate. We set out to build the platform we wished existed, one that saves time, delivers meaningful, actionable insights, and helps keep parents informed. 
         </p>
       </div>
     </section>
