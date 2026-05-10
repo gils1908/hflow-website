@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Demo form → Next.js API (`hflow-api-origin`). Operators: allow this page’s origin on the API (browser CORS). -->
   <meta name="hflow-api-origin" content="https://app.hflow.pro" />
-  <title>hFlow: Student Literacy Assessment Platform</title>
+  <title>hFlow: Student Literacy and Language Assessment Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -180,6 +180,7 @@ function Hero({ dark, accent, heroStyle }) {
   const textCol = dark ? "#ffffff" : NAVY;
   /* Slightly darker than global SLATE so hero body copy reads on the classroom photo */
   const subCol  = dark ? "rgba(200,215,255,0.75)" : "#334155";
+  const heroLeadCol = dark ? subCol : "#1e293b";
   const photoStrength = heroStyle === "flat" ? 0.68 : 0.78;
   const scrimCenter = heroStyle === "flat" ? 0.82 : 0.72;
 
@@ -246,7 +247,7 @@ function Hero({ dark, accent, heroStyle }) {
           borderRadius: 999, padding: "5px 16px",
           fontSize: 12, fontWeight: 600, letterSpacing: "0.06em",
           textTransform: "uppercase", marginBottom: 28,
-        }}>Student Literacy Assessment Platform</div>
+        }}>Student Literacy and Language Assessment Platform</div>
 
         <h1 style={{
           fontSize: "clamp(38px, 6vw, 72px)",
@@ -256,17 +257,17 @@ function Hero({ dark, accent, heroStyle }) {
           marginBottom: 24,
           textWrap: "balance",
         }}>
-          Every student, tracked.<br />
-          Every milestone, <span style={{ color: accent }}>visible.</span>
+          One Platform. Clear Insights.<br />
+          <span style={{ color: accent }}>Better Outcomes.</span>
         </h1>
 
         <p style={{
           fontSize: "clamp(16px, 2vw, 20px)",
-          color: subCol, lineHeight: 1.65,
+          color: heroLeadCol, lineHeight: 1.65,
           maxWidth: 560, margin: "0 auto 48px",
           textWrap: "pretty",
         }}>
-          hFlow is the modern reading assessment platform for schools that want clarity, not complexity. Track student progress, configure your own assessments, and communicate results, all in one place.
+          hFlow is the modern reading and language assessment platform for schools that want clarity, not complexity. Track student progress, configure your own assessments, and communicate results, all in one place.
         </p>
 
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
@@ -311,8 +312,20 @@ function Hero({ dark, accent, heroStyle }) {
           overflow: "hidden",
           border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`,
         }}>
-          <img src="Assets/screenshot-students.png" alt="hFlow Students view" style={{ width: "100%", display: "block" }} />
+          <img src="Assets/screenshot-students.png?v=4" alt="hFlow Students view" style={{ width: "100%", display: "block" }} />
         </div>
+        <p style={{
+          marginTop: 12,
+          textAlign: "center",
+          fontSize: 11,
+          lineHeight: 1.45,
+          color: dark ? "rgba(200,215,255,0.52)" : "#64748b",
+          maxWidth: 640,
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}>
+          Sample data shown is fictional. Any resemblance to real persons, schools, or student records is purely coincidental.
+        </p>
       </div>
     </section>
   );
@@ -333,12 +346,12 @@ const FEATURES = [
   {
     icon: "charts",
     title: "Visual reporting",
-    body: "Tier distributions, trend charts, and progress snapshots surface instantly. Export or email charts with one click.",
+    body: "Skill level distributions, trend charts, and progress snapshots surface instantly.",
   },
   {
-    icon: "people",
-    title: "Parent communications",
-    body: "Generate personalized progress reports for families. Customizable templates with up to date student data and charts, ready to send.",
+    icon: "insights",
+    title: "Clear Insights",
+    body: 'Gain a clear "big picture" view with school-wide and class-level reports that track growth, identify trends and support data-driven decision-making.',
   },
   {
     icon: "levels",
@@ -390,16 +403,20 @@ function FeatureIcon({ variant, accent, dark }) {
           <path d="M37 24L37 17A7 7 0 0144 24H37z" fill={accent} fillOpacity={fi + 0.06} stroke={s} strokeWidth={1.35} />
         </>
       )}
-      {variant === "people" && (
+      {variant === "insights" && (
         <>
-          <circle cx="14" cy="17.5" r="4.25" stroke={s} strokeWidth={w} />
-          <path d="M8.5 33.5c0-3.8 2.4-6.8 5.5-6.8s5.5 3 5.5 6.8" stroke={s} strokeWidth={w} strokeLinecap="round" />
-          <circle cx="14" cy="17.5" r="2.75" fill={accent} fillOpacity={fi * 0.75} />
-          <circle cx="34" cy="17.5" r="4.25" stroke={s} strokeWidth={w} />
-          <path d="M28.5 33.5c0-3.8 2.4-6.8 5.5-6.8s5.5 3 5.5 6.8" stroke={s} strokeWidth={w} strokeLinecap="round" />
-          <circle cx="34" cy="17.5" r="2.75" fill={accent} fillOpacity={fi * 0.75} />
-          <path d="M21 22.5h7" stroke={s} strokeWidth={w} strokeLinecap="round" />
-          <path d="M27 20.5l2.5 2-2.5 2" stroke={s} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" />
+          {/* Lightbulb + rays — reads as insight / clarity */}
+          <path
+            d="M24 9.5a7.25 7.25 0 00-7.25 7.25c0 2.95 1.75 5.5 4.25 6.65V26.5a1.75 1.75 0 001.75 1.75h2.5a1.75 1.75 0 001.75-1.75v-3.1a7.25 7.25 0 004.25-6.65A7.25 7.25 0 0024 9.5z"
+            stroke={s}
+            strokeWidth={w}
+            strokeLinejoin="round"
+          />
+          <circle cx="24" cy="17.5" r="2.75" fill={accent} fillOpacity={fi + 0.12} />
+          <path d="M19.5 28.25h9" stroke={s} strokeWidth={w} strokeLinecap="round" />
+          <path d="M20.5 31.25h7" stroke={s} strokeWidth={w} strokeLinecap="round" />
+          <path d="M21.5 34.25h5" stroke={s} strokeWidth={w} strokeLinecap="round" />
+          <path d="M24 5.25v2M32.8 10.8l-1.55 1.55M15.2 10.8l1.55 1.55" stroke={s} strokeWidth={1.35} strokeLinecap="round" opacity="0.5" />
         </>
       )}
       {variant === "levels" && (
@@ -486,6 +503,14 @@ function HowItWorks({ dark, accent }) {
   const h    = dark ? "white" : NAVY;
   const body = dark ? "rgba(200,215,255,0.7)" : SLATE;
   const numC = accent;
+  const shotCard = {
+    borderRadius: 16,
+    border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`,
+    boxShadow: dark ? "0 16px 48px rgba(0,0,0,0.4)" : "0 12px 40px rgba(30,50,112,0.10)",
+    overflow: "hidden",
+    background: dark ? "rgba(255,255,255,0.02)" : "#fff",
+  };
+  const cap = { fontSize: 12, color: body, marginTop: 10, lineHeight: 1.45, textWrap: "pretty" };
 
   return (
     <section id="how-it-works" style={{ background: bg, padding: "100px 40px" }}>
@@ -499,7 +524,7 @@ function HowItWorks({ dark, accent }) {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
             {STEPS.map((s, i) => (
               <div key={i} style={{ display: "flex", gap: 20 }}>
@@ -516,8 +541,80 @@ function HowItWorks({ dark, accent }) {
               </div>
             ))}
           </div>
-          <img src="Assets/screenshot-trend.png?v=3" alt="Student performance trend: accuracy and fluency over BOY, MOY, EOY" style={{ width: "100%", borderRadius: 16, border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`, boxShadow: dark ? "0 16px 48px rgba(0,0,0,0.4)" : "0 12px 40px rgba(30,50,112,0.10)", display: "block" }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+            <figure style={{ margin: 0 }}>
+              <div style={shotCard}>
+                <img src="Assets/screenshot-trend.png?v=4" alt="Student reading trend: accuracy and fluency over BOY, MOY, and EOY" style={{ width: "100%", display: "block" }} />
+              </div>
+              <figcaption style={cap}>Reading trend — accuracy and fluency across benchmark checkpoints.</figcaption>
+            </figure>
+            <figure style={{ margin: 0 }}>
+              <div style={shotCard}>
+                <img src="Assets/screenshot-language-progress.png?v=1" alt="Student language progress: ACTFL skill levels and comprehension by domain over the school year" style={{ width: "100%", display: "block" }} />
+              </div>
+              <figcaption style={cap}>Language progress — skills and comprehension side by side for the year.</figcaption>
+            </figure>
+          </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+// Student 360 — unified learner workspace
+function Student360Callout({ dark, accent }) {
+  const bg         = dark ? "#0e1a4a" : "#eceff6";
+  const h          = dark ? "white" : NAVY;
+  const body       = dark ? "rgba(200,215,255,0.7)" : SLATE;
+  const disclaimer = dark ? "rgba(200,215,255,0.52)" : "#64748b";
+  const shot = {
+    borderRadius: 20,
+    overflow: "hidden",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`,
+    boxShadow: dark ? "0 32px 80px rgba(0,0,0,0.48)" : "0 24px 64px rgba(30,50,112,0.12)",
+    background: dark ? "rgba(255,255,255,0.02)" : "#fff",
+  };
+
+  return (
+    <section style={{ background: bg, padding: "96px 40px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: 48, maxWidth: 680, marginLeft: "auto", marginRight: "auto" }}>
+          <div style={{
+            display: "inline-block",
+            marginBottom: 16,
+            background: `${accent}18`,
+            color: accent,
+            borderRadius: 999,
+            padding: "4px 14px",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}>Student 360°</div>
+          <h2 style={{ fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 800, color: h, letterSpacing: "-0.02em", marginBottom: 16, lineHeight: 1.12 }}>
+            A unified 360°: data, skills, and reporting in one page
+          </h2>
+          <p style={{ fontSize: 16, color: body, lineHeight: 1.7, textWrap: "pretty" }}>
+            View each student's assessment result, charts, goals, and checkpoints in one organzied dashboard to support personalized instruction and progress monitoring.
+          </p>
+        </div>
+        <figure style={{ margin: 0 }}>
+          <div style={shot}>
+            <img src="Assets/screenshot-student-360.png?v=1" alt="hFlow student 360 workspace: Summary with goals, trend charts, and assessment cards" style={{ width: "100%", display: "block" }} />
+          </div>
+          <figcaption style={{
+            marginTop: 12,
+            textAlign: "center",
+            fontSize: 11,
+            lineHeight: 1.45,
+            color: disclaimer,
+            maxWidth: 640,
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}>
+            Sample data shown is fictional. Any resemblance to real persons, schools, or student records is purely coincidental.
+          </figcaption>
+        </figure>
       </div>
     </section>
   );
@@ -564,7 +661,7 @@ function ReportingCallout({ dark, accent }) {
             display: "inline-block",
           }}>See a live demo</a>
         </div>
-          <img src="Assets/screenshot-grade-tiers.jpg" alt="Grade tier distribution" style={{ width: "100%", borderRadius: 12, border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`, boxShadow: "0 8px 24px rgba(0,0,0,0.08)", display: "block" }} />
+          <img src="Assets/screenshot-grade-tiers.png?v=2" alt="Grade reading tier distribution: bar chart, donut charts, and tables for BOY, MOY, EOY" style={{ width: "100%", borderRadius: 12, border: `1px solid ${dark ? "rgba(255,255,255,0.1)" : "#e2e8f0"}`, boxShadow: "0 8px 24px rgba(0,0,0,0.08)", display: "block" }} />
       </div>
     </section>
   );
@@ -821,6 +918,7 @@ function App() {
       <Hero dark={dark} accent={accent} heroStyle={t.heroStyle} />
       <Features dark={dark} accent={accent} />
       <HowItWorks dark={dark} accent={accent} />
+      <Student360Callout dark={dark} accent={accent} />
       <ReportingCallout dark={dark} accent={accent} />
       <FAQ dark={dark} accent={accent} />
       <DemoCTA dark={dark} accent={accent} />
