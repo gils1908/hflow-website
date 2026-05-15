@@ -108,6 +108,28 @@ function assetUrl(relativePath) {
   }
 }
 
+/** Viewports ≤767px use compact branches below; wider layouts keep existing inline literals unchanged. */
+const COMPACT_LAYOUT_MQ = "(max-width: 767px)";
+const CompactLayoutContext = React.createContext(false);
+
+function useCompactLayoutFlag() {
+  const [compact, setCompact] = React.useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(COMPACT_LAYOUT_MQ).matches : false
+  );
+  React.useEffect(() => {
+    const mq = window.matchMedia(COMPACT_LAYOUT_MQ);
+    const onChange = () => setCompact(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return compact;
+}
+
+/** Horizontal inset shared across stacked landing sections on compact viewports only. */
+function landingHxInsetPx(compact) {
+  return compact ? 18 : 40;
+}
+
 // Small helpers
 function Placeholder({ label, width = "100%", height = 320, className = "" }) {
   return (
@@ -157,42 +179,225 @@ function Wordmark({ dark, size = 22, muted = false }) {
 
 // Nav
 function Nav({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const bg    = dark ? "rgba(18,28,64,0.95)" : "rgba(255,255,255,0.92)";
   const color = dark ? "#e0e8ff" : NAVY;
   const border= dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
-  return (
-    <nav style={{
-      position: "sticky", top: 0, zIndex: 100,
-      background: bg,
-      backdropFilter: "blur(16px)",
-      borderBottom: `1px solid ${border}`,
-      padding: "0 40px",
-      height: 64,
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-    }}>
-      <Wordmark dark={dark} size={24} />
-      <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-        {["Features","How it works","FAQ"].map(item => (
-          <a key={item} href={`#${item.toLowerCase().replace(/ /g,"-")}`}
-             style={{ color, fontSize: 14, fontWeight: 500, textDecoration: "none", opacity: 0.8 }}>
-            {item}
-          </a>
-        ))}
-        <a href={APP_HREF} style={{
+  const navHxInsetPx = landingHxInsetPx(compact);
+
+  React.useEffect(() => {
+    if (!compact && menuOpen) setMenuOpen(false);
+  }, [compact, menuOpen]);
+
+  React.useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    if (compact) document.documentElement.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.documentElement.style.overflow = "";
+    };
+  }, [menuOpen, compact]);
+
+  const closeMobileMenu = () => setMenuOpen(false);
+
+  const navAnchors = ["Features","How it works","FAQ"];
+
+  const desktopNavLinks = (
+    <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+      {navAnchors.map((item) => (
+        <a
+          key={item}
+          href={`#${item.toLowerCase().replace(/ /g, "-")}`}
+          style={{ color, fontSize: 14, fontWeight: 500, textDecoration: "none", opacity: 0.8 }}
+        >
+          {item}
+        </a>
+      ))}
+      <a
+        href={APP_HREF}
+        style={{
           color: dark ? APP_LINK_BRIGHT : APP_LINK,
           border: `1.5px solid ${dark ? "rgba(45,212,191,0.45)" : "rgba(13,148,136,0.45)"}`,
           background: dark ? "rgba(45,212,191,0.08)" : "rgba(13,148,136,0.06)",
-          padding: "8px 18px", borderRadius: 999,
-          fontSize: 14, fontWeight: 600, textDecoration: "none",
-        }}>Open app</a>
-        <a href="#demo" style={{
-          background: accent, color: "white",
-          padding: "8px 20px", borderRadius: 999,
-          fontSize: 14, fontWeight: 600, textDecoration: "none",
+          padding: "8px 18px",
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 600,
+          textDecoration: "none",
+        }}
+      >
+        Open app
+      </a>
+      <a
+        href="#demo"
+        style={{
+          background: accent,
+          color: "white",
+          padding: "8px 20px",
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 600,
+          textDecoration: "none",
           boxShadow: `0 4px 14px ${accent}40`,
-        }}>Request a Demo</a>
-      </div>
-    </nav>
+        }}
+      >
+        Request a Demo
+      </a>
+    </div>
+  );
+
+  const mobileDrawerTint = dark ? "rgba(8,12,36,0.92)" : "rgba(15,23,41,0.52)";
+  const drawerBg = dark ? "#131d45" : "#ffffff";
+  const drawerBd = dark ? "rgba(255,255,255,0.1)" : "#e2e8f0";
+
+  return (
+    <>
+      <nav
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: compact ? 220 : 100,
+          background: bg,
+          backdropFilter: "blur(16px)",
+          borderBottom: `1px solid ${border}`,
+          padding: compact ? `0 ${navHxInsetPx}px` : "0 40px",
+          height: compact ? 56 : 64,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        <Wordmark dark={dark} size={24} />
+        {!compact ? desktopNavLinks : (
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((o) => !o)}
+            style={{
+              flexShrink: 0,
+              width: 44,
+              height: 44,
+              marginRight: -6,
+              borderRadius: 12,
+              border: `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(15,23,41,0.08)"}`,
+              background: dark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.85)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color,
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              {menuOpen ? (
+                <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              ) : (
+                <>
+                  <path d="M5 7H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M5 17H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </>
+              )}
+            </svg>
+          </button>
+        )}
+      </nav>
+      {compact && menuOpen ? (
+        <>
+          <div
+            role="presentation"
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 229,
+              background: mobileDrawerTint,
+            }}
+            onClick={closeMobileMenu}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site menu"
+            style={{
+              position: "fixed",
+              top: 56,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 230,
+              background: drawerBg,
+              borderTop: `1px solid ${drawerBd}`,
+              boxShadow: dark ? "0 12px 40px rgba(0,0,0,0.45)" : "0 12px 40px rgba(30,50,112,0.12)",
+              padding: "20px 18px 28px",
+              overflowY: "auto",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {navAnchors.map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/ /g, "-")}`}
+                  onClick={closeMobileMenu}
+                  style={{
+                    color: dark ? "#e8edff" : NAVY,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    padding: "14px 12px",
+                    borderRadius: 12,
+                    background: dark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.06)",
+                  }}
+                >
+                  {item}
+                </a>
+              ))}
+              <a
+                href={APP_HREF}
+                onClick={closeMobileMenu}
+                style={{
+                  marginTop: 8,
+                  textAlign: "center",
+                  color: dark ? APP_LINK_BRIGHT : APP_LINK,
+                  border: `1.5px solid ${dark ? "rgba(45,212,191,0.45)" : "rgba(13,148,136,0.45)"}`,
+                  background: dark ? "rgba(45,212,191,0.12)" : "rgba(13,148,136,0.08)",
+                  padding: "14px 18px",
+                  borderRadius: 999,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                Open app
+              </a>
+              <a
+                href="#demo"
+                onClick={closeMobileMenu}
+                style={{
+                  textAlign: "center",
+                  background: accent,
+                  color: "white",
+                  padding: "14px 20px",
+                  borderRadius: 999,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  boxShadow: `0 6px 20px ${accent}45`,
+                }}
+              >
+                Request a Demo
+              </a>
+            </div>
+          </div>
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -200,6 +405,12 @@ function Nav({ dark, accent }) {
 const HERO_CLASSROOM_BG = "Assets/hero-classroom.png?v=2";
 
 function Hero({ dark, accent, heroStyle }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
+  const heroTopPt = compact ? "min(72px, 21vw)" : "100px";
+  const heroBottomPb = compact ? "min(52px, 16vw)" : "64px";
+  const shotBarPy = compact ? "min(52px, 15vw)" : "80px";
+
   /* Photo only behind headline block; screenshot sits on plain section bg below */
   const usePhotoBg = !dark;
   const bgDark  = "linear-gradient(135deg, #0c1440 0%, #1e3270 50%, #112060 100%)";
@@ -217,7 +428,7 @@ function Hero({ dark, accent, heroStyle }) {
       <div style={{
         position: "relative",
         overflow: "hidden",
-        padding: "100px 40px 64px",
+        padding: compact ? `${heroTopPt} ${insetPx}px ${heroBottomPb}` : "100px 40px 64px",
         textAlign: "center",
       }}>
         {usePhotoBg && (
@@ -332,7 +543,7 @@ function Hero({ dark, accent, heroStyle }) {
       </div>
 
       {/* App screenshot; below photo area, solid section background (width aligns with Features grid) */}
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "22px 40px 80px" }}>
+      <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: compact ? `18px ${insetPx}px ${shotBarPy}` : "22px 40px 80px" }}>
         <div style={{
           borderRadius: 20,
           boxShadow: dark ? "0 32px 80px rgba(0,0,0,0.5)" : "0 24px 64px rgba(30,50,112,0.12)",
@@ -460,6 +671,8 @@ function FeatureIcon({ variant, accent, dark }) {
 }
 
 function Features({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   /* Light: slightly deeper than hero (#f8faff) so pillars read as their own section */
   const bg     = dark ? "#0e1a4a" : "#eceff6";
   const cardBg = dark ? "rgba(255,255,255,0.05)" : "white";
@@ -468,9 +681,9 @@ function Features({ dark, accent }) {
   const body   = dark ? "rgba(200,215,255,0.7)" : SLATE;
 
   return (
-    <section id="features" style={{ background: bg, padding: "100px 40px" }}>
+    <section id="features" style={{ background: bg, padding: compact ? `64px ${insetPx}px` : "100px 40px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
+        <div style={{ textAlign: "center", marginBottom: compact ? 44 : 64 }}>
           <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 800, color: h, letterSpacing: "-0.02em", marginBottom: 16 }}>
             Designed to fit your school’s needs
           </h2>
@@ -526,6 +739,8 @@ const STEPS = [
 ];
 
 function HowItWorks({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   const bg   = dark ? "#111c50" : "white";
   const h    = dark ? "white" : NAVY;
   const body = dark ? "rgba(200,215,255,0.7)" : SLATE;
@@ -540,9 +755,9 @@ function HowItWorks({ dark, accent }) {
   const cap = { fontSize: 12, color: body, marginTop: 10, lineHeight: 1.45, textWrap: "pretty" };
 
   return (
-    <section id="how-it-works" style={{ background: bg, padding: "100px 40px" }}>
+    <section id="how-it-works" style={{ background: bg, padding: compact ? `68px ${insetPx}px` : "100px 40px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 72 }}>
+        <div style={{ textAlign: "center", marginBottom: compact ? 48 : 72 }}>
           <h2 style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 800, color: h, letterSpacing: "-0.02em", marginBottom: 16 }}>
             Up and running in an afternoon
           </h2>
@@ -551,7 +766,7 @@ function HowItWorks({ dark, accent }) {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
+        <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "1fr 1fr", gap: compact ? 36 : 48, alignItems: "start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
             {STEPS.map((s, i) => (
               <div key={i} style={{ display: "flex", gap: 20 }}>
@@ -590,6 +805,8 @@ function HowItWorks({ dark, accent }) {
 
 // Student 360 — unified learner workspace
 function Student360Callout({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   const bg         = dark ? "#0e1a4a" : "#eceff6";
   const h          = dark ? "white" : NAVY;
   const body       = dark ? "rgba(200,215,255,0.7)" : SLATE;
@@ -603,9 +820,9 @@ function Student360Callout({ dark, accent }) {
   };
 
   return (
-    <section style={{ background: bg, padding: "96px 40px" }}>
+    <section style={{ background: bg, padding: compact ? `64px ${insetPx}px` : "96px 40px" }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 48, maxWidth: 680, marginLeft: "auto", marginRight: "auto" }}>
+        <div style={{ textAlign: "center", marginBottom: compact ? 36 : 48, maxWidth: 680, marginLeft: "auto", marginRight: "auto" }}>
           <div style={{
             display: "inline-block",
             marginBottom: 16,
@@ -649,6 +866,8 @@ function Student360Callout({ dark, accent }) {
 
 // Reporting callout
 function ReportingCallout({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   const bg = dark
     ? `linear-gradient(135deg, #0c1440 0%, #1a2f70 100%)`
     : `linear-gradient(135deg, ${accent}0a 0%, #eef2ff 100%)`;
@@ -657,14 +876,14 @@ function ReportingCallout({ dark, accent }) {
   const bd   = dark ? "rgba(255,255,255,0.06)" : `${accent}20`;
 
   return (
-    <section style={{ background: dark ? "#0e1a4a" : "#f0f4ff", padding: "80px 40px" }}>
+    <section style={{ background: dark ? "#0e1a4a" : "#f0f4ff", padding: compact ? `64px ${insetPx}px` : "80px 40px" }}>
       <div style={{
         maxWidth: 1100, margin: "0 auto",
         background: bg,
         border: `1px solid ${bd}`,
-        borderRadius: 28, padding: "64px 48px",
-        display: "grid", gridTemplateColumns: "1fr 1fr",
-        gap: 48, alignItems: "center",
+        borderRadius: 28, padding: compact ? "32px 20px" : "64px 48px",
+        display: "grid", gridTemplateColumns: compact ? "1fr" : "1fr 1fr",
+        gap: compact ? 28 : 48, alignItems: "center",
       }}>
         <div>
           <div style={{
@@ -706,6 +925,8 @@ const FAQS = [
 ];
 
 function FAQ({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   const [open, setOpen] = React.useState(null);
   const bg   = dark ? "#111c50" : "#f8faff";
   const h    = dark ? "white" : NAVY;
@@ -714,9 +935,9 @@ function FAQ({ dark, accent }) {
   const cardBd = dark ? "rgba(255,255,255,0.08)" : "#eaeff8";
 
   return (
-    <section id="faq" style={{ background: bg, padding: "100px 40px" }}>
+    <section id="faq" style={{ background: bg, padding: compact ? `64px ${insetPx}px` : "100px 40px" }}>
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
+        <div style={{ textAlign: "center", marginBottom: compact ? 40 : 56 }}>
           <h2 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 800, color: h, letterSpacing: "-0.02em", marginBottom: 14 }}>
             Common questions
           </h2>
@@ -758,6 +979,8 @@ function FAQ({ dark, accent }) {
 
 // Demo CTA
 function DemoCTA({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   const [name, setName]   = React.useState("");
   const [email, setEmail] = React.useState("");
   const [school, setSchool] = React.useState("");
@@ -831,7 +1054,7 @@ function DemoCTA({ dark, accent }) {
   }
 
   return (
-    <section id="demo" style={{ background: bg, padding: "100px 40px", position: "relative", overflow: "hidden" }}>
+    <section id="demo" style={{ background: bg, padding: compact ? `64px ${insetPx}px` : "100px 40px", position: "relative", overflow: "hidden" }}>
       <div style={{
         position: "absolute", top: -100, right: -100,
         width: 500, height: 500,
@@ -860,7 +1083,7 @@ function DemoCTA({ dark, accent }) {
                 borderRadius: 10, padding: "12px 16px", color: "#fff", fontSize: 14, textAlign: "left",
               }}>{error}</div>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "1fr 1fr", gap: 14 }}>
               <input className="demo-input" value={name} onChange={e => setName(e.target.value)}
                 placeholder="Your name" style={inp} disabled={submitting} />
               <input className="demo-input" value={email} onChange={e => setEmail(e.target.value)}
@@ -893,12 +1116,14 @@ function DemoCTA({ dark, accent }) {
 
 // About
 function About({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   const bg   = dark ? "#0c1440" : "#f0f4ff";
   const h    = dark ? "white" : NAVY;
   const body = dark ? "rgba(200,215,255,0.7)" : SLATE;
 
   return (
-    <section id="about" style={{ background: bg, padding: "80px 40px" }}>
+    <section id="about" style={{ background: bg, padding: compact ? `56px ${insetPx}px` : "80px 40px" }}>
       <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
         <h2 style={{ fontSize: "clamp(24px, 3vw, 36px)", fontWeight: 800, color: h, letterSpacing: "-0.02em", marginBottom: 20 }}>
           Built by educators, for educators
@@ -913,14 +1138,25 @@ function About({ dark, accent }) {
 
 // Footer
 function Footer({ dark, accent }) {
+  const compact = React.useContext(CompactLayoutContext);
+  const insetPx = landingHxInsetPx(compact);
   const bg   = dark ? "#080f30" : NAVY;
   const body = "rgba(180,195,230,0.7)";
 
   return (
-    <footer style={{ background: bg, padding: "48px 40px", color: body }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
+    <footer style={{ background: bg, padding: compact ? `40px ${insetPx}px` : "48px 40px", color: body }}>
+      <div style={{
+        maxWidth: 1100,
+        margin: "0 auto",
+        display: "flex",
+        justifyContent: compact ? "stretch" : "space-between",
+        alignItems: compact ? "stretch" : "center",
+        flexDirection: compact ? "column" : "row",
+        flexWrap: "wrap",
+        gap: compact ? 24 : 20,
+      }}>
         <Wordmark muted size={20} />
-        <div style={{ fontSize: 13, display: "flex", gap: 28, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ fontSize: 13, display: "flex", gap: compact ? 16 : 28, alignItems: "center", flexWrap: "wrap", justifyContent: compact ? "flex-start" : undefined }}>
           <a href={APP_HREF} style={{ color: APP_LINK_BRIGHT, fontWeight: 600, textDecoration: "none" }}>
             Open app
           </a>
@@ -928,7 +1164,7 @@ function Footer({ dark, accent }) {
             <a key={t} href="#" style={{ color: body, textDecoration: "none" }}>{t}</a>
           ))}
         </div>
-        <div style={{ fontSize: 13 }}>© 2026 hFlow. All rights reserved.</div>
+        <div style={{ fontSize: 13, alignSelf: compact ? "stretch" : undefined }}>© 2026 hFlow. All rights reserved.</div>
       </div>
     </footer>
   );
@@ -939,8 +1175,10 @@ function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const dark   = t.direction === "dark";
   const accent = t.accentColor;
+  const compactLayout = useCompactLayoutFlag();
 
   return (
+    <CompactLayoutContext.Provider value={compactLayout}>
     <div style={{ background: dark ? "#0c1440" : "white" }}>
       <Nav dark={dark} accent={accent} />
       <Hero dark={dark} accent={accent} heroStyle={t.heroStyle} />
@@ -965,6 +1203,7 @@ function App() {
           onChange={v => setTweak("accentColor", v)} />
       </TweaksPanel>
     </div>
+    </CompactLayoutContext.Provider>
   );
 }
 
